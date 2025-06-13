@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/magnolia-solutions/mcp-framework"
+    "url": "git+https://github.com/magnolia-solutions/mcp-framework.git"
   },
   "bugs": {
     "url": "https://github.com/magnolia-solutions/mcp-framework/issues"
@@ -37,8 +37,8 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format": "prettier --write \"src/**/*.ts\"",
-    "prepare": "pnpm run build",
-    "dev:pub": "rm -rf dist && pnpm run build && yalc publish --push",
+    "dev:pub": "rm -rf dist && tsc && npm publish --access public --ignore-scripts",
+    "prepublishOnly": "echo 'Preparing to publish...'",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
