@@ -53,9 +53,18 @@ export type ToolResponse = {
   content: ToolContent[];
 };
 
+export type ToolExample = {
+  input: Record<string, unknown>;
+  output: {
+    type: string;
+    result: unknown;
+  };
+};
+
 export interface ToolProtocol extends SDKTool {
   name: string;
   description: string;
+  examples: ToolExample;
   toolDefinition: {
     name: string;
     description: string;
@@ -96,6 +105,7 @@ export abstract class MCPTool<TInput extends Record<string, any> = any, TSchema 
 {
   abstract name: string;
   abstract description: string;
+  abstract examples: ToolExample;
   protected abstract schema: TSchema extends z.ZodObject<any>
     ? TSchema
     : TSchema extends ToolInputSchema<any>
