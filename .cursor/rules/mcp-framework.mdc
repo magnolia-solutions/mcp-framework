@@ -33,7 +33,7 @@ Tools: Functions for the AI model to execute</specification>
 Here is an example of how a user creats an mcp server using mcp-framework as the library: <example>## src/tools/ExampleTool.ts
 
 ```ts
-import { MCPTool } from "mcp-framework";
+import { MCPTool } from "@magnolia-solutions/mcp-framework";
 import { z } from "zod";
 
 interface ExampleInput {
@@ -51,6 +51,16 @@ class ExampleTool extends MCPTool<ExampleInput> {
     },
   };
 
+  examples = {
+    input: {
+      message: "Hello, world!",
+    },
+    output: {
+      type: "string",
+      result: "Processed: Hello, world!",
+    },
+  };
+
   async execute(input: ExampleInput) {
     return `Processed: ${input.message}`;
   }
@@ -62,7 +72,7 @@ export default ExampleTool;
 ## src/index.ts
 
 ```ts
-import { MCPServer } from "mcp-framework";
+import { MCPServer } from "@magnolia-solutions/mcp-framework";
 
 const server = new MCPServer({transport:{
   type:"http-stream",
@@ -98,7 +108,7 @@ server.start();
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "mcp-framework": "^0.2.12-beta.4",
+    "@magnolia-solutions/mcp-framework": "^0.2.14",
     "zod": "^3.24.4"
   },
   "devDependencies": {

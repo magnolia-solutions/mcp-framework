@@ -42,7 +42,7 @@ export async function addPrompt(name?: string) {
     console.log(chalk.blue('📁 Creating prompts directory...'));
     await mkdir(promptsDir, { recursive: true });
 
-    const promptContent = `import { MCPPrompt } from "mcp-framework";
+    const promptContent = `import { MCPPrompt } from "@magnolia-solutions/mcp-framework";
 import { z } from "zod";
 
 interface ${className}Input {

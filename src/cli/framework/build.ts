@@ -29,9 +29,9 @@ export async function buildFramework() {
       const pkgContent = await readFile(pkgPath, 'utf8');
       const pkg = JSON.parse(pkgContent);
 
-      if (!pkg.dependencies?.['mcp-framework']) {
+      if (!pkg.dependencies?.['@magnolia-solutions/mcp-framework']) {
         throw new Error(
-          'This directory is not an MCP project (mcp-framework not found in dependencies)'
+          'This directory is not an MCP project (@magnolia-solutions/mcp-framework not found in dependencies)'
         );
       }
     }

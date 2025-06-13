@@ -42,7 +42,7 @@ export async function addTool(name?: string) {
     console.log(chalk.blue('📁 Creating tools directory...'));
     await mkdir(toolsDir, { recursive: true });
 
-    const toolContent = `import { MCPTool } from "mcp-framework";
+    const toolContent = `import { MCPTool } from "@magnolia-solutions/mcp-framework";
 import { z } from "zod";
 
 interface ${className}Input {

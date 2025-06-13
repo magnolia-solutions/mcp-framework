@@ -67,7 +67,7 @@ export async function createProject(
         start: 'node dist/index.js',
       },
       dependencies: {
-        'mcp-framework': '^0.2.2',
+        '@magnolia-solutions/mcp-framework': '^0.2.14',
       },
       devDependencies: {
         '@types/node': '^20.11.24',
@@ -114,20 +114,20 @@ export async function createProject(
     }
   }`;
 
-      indexTs = `import { MCPServer } from "mcp-framework";
+      indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
 
 const server = new MCPServer({${transportConfig}});
 
 server.start();`;
     } else {
-      indexTs = `import { MCPServer } from "mcp-framework";
+      indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
 
 const server = new MCPServer();
 
 server.start();`;
     }
 
-    const exampleToolTs = `import { MCPTool } from "mcp-framework";
+    const exampleToolTs = `import { MCPTool } from "@magnolia-solutions/mcp-framework";
 import { z } from "zod";
 
 interface ExampleInput {

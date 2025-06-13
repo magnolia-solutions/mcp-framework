@@ -58,7 +58,7 @@ importers:
         specifier: ^9.0.8
         version: 9.0.9
       '@types/node':
-        specifier: ^20.17.28
+        specifier: ^20.19.0
         version: 20.19.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.28.0

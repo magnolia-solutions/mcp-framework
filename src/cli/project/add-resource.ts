@@ -44,7 +44,7 @@ export async function addResource(name?: string) {
     console.log(chalk.blue('📁 Creating resources directory...'));
     await mkdir(resourcesDir, { recursive: true });
 
-    const resourceContent = `import { MCPResource, ResourceContent } from "mcp-framework";
+    const resourceContent = `import { MCPResource, ResourceContent } from "@magnolia-solutions/mcp-framework";
 
 class ${className}Resource extends MCPResource {
   uri = "resource://${resourceName}";
