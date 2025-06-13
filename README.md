@@ -1,3 +1,57 @@
+# MCP Framework (Fork)
+
+This is a fork of the [mcp-framework](https://github.com/original-repo/mcp-framework) project, created to add additional features and improvements.
+
+## Changes from Original
+
+- Added examples support to BaseTool for better LLM integration
+
+## Installation
+
+```bash
+npm install @magnolia-solutions/mcp-framework
+```
+
+## Testing with MCP Inspector
+
+When developing your MCP server you can use the MCP Inspector tool (`@modelcontextprotocol/inspector`).
+
+### Prerequisites
+
+- Node.js installed (to run the inspector tool)
+
+### Setup
+
+1. **Build and start your MCP server:**
+
+```bash
+bun run build
+node dist/bundle.js YOUR_CLIENT YOUR_COMPANY YOUR_USER YOUR_PASSWORD [YOUR_BASE_URL]
+```
+
+2. **In a separate terminal, run the MCP Inspector tool:**
+
+```bash
+pnpm dlx @modelcontextprotocol/inspector
+```
+
+This will start the MCP Inspector which connects to your running MCP server, allowing you to:
+
+- Browse available tools
+- Test tool invocations
+- See the requests and responses
+- Debug server behavior
+
+## Original Project
+
+This project is a fork of [mcp-framework](https://github.com/QuantGeekDev/mcp-framework) by [Alex Andru](https://github.com/alexandru).
+
+## License
+
+MIT - See [LICENSE](LICENSE) file
+
+# [Read the full docs here](https://mcp-framework.com)
+
 # MCP Framework
 
 MCP-Framework is a framework for building Model Context Protocol (MCP) servers elegantly in TypeScript.
@@ -13,34 +67,13 @@ MCP-Framework gives you architecture out of the box, with automatic directory-ba
 - Easy-to-use base classes for tools, prompts, and resources
 - Out of the box authentication for SSE endpoints
 
-## Projects Built with MCP Framework
-
-The following projects and services are built using MCP Framework:
-
-- ### [tip.md](https://tip.md)
-A crypto tipping service that enables AI assistants to help users send cryptocurrency tips to content creators directly from their chat interface. The MCP service allows for:
- - Checking wallet types for users
- - Preparing cryptocurrency tips for users/agents to complete
-Setup instructions for various clients (Cursor, Sage, Claude Desktop) are available in their [MCP Server documentation](https://docs.tip.md/mcp-server/).
-
-## Support our work
-
-[![Tip in Crypto](https://tip.md/badge.svg)](https://tip.md/QuantGeekDev)
-
-
-# [Read the full docs here](https://mcp-framework.com)
-
-
-
-
-
 ## Creating a repository with mcp-framework
 
 ### Using the CLI (Recommended)
 
 ```bash
 # Install the framework globally
-npm install -g mcp-framework
+npm install -g @magnolia-solutions/mcp-framework
 
 # Create a new MCP server project
 mcp create my-mcp-server
@@ -62,14 +95,14 @@ The framework provides a powerful CLI for managing your MCP server projects:
 mcp create <your project name here>
 
 # Create a new project with the new EXPERIMENTAL HTTP transport
-Heads up: This will set cors allowed origin to "*", modify it in the index if you wish
+# Heads up: This will set cors allowed origin to "*", modify it in the index if you wish
 mcp create <your project name here> --http --port 1337 --cors
-```
 
 # Options:
 # --http: Use HTTP transport instead of default stdio
 # --port <number>: Specify HTTP port (default: 8080)
 # --cors: Enable CORS with wildcard (*) access
+```
 
 ### Adding a Tool
 
@@ -106,14 +139,16 @@ This command checks that all tools using Zod schemas have descriptions for every
 - ✅ **Runtime**: Server validates tools on startup
 
 **Example validation error:**
+
 ```bash
 ❌ Tool validation failed:
-  ❌ PriceFetcher.js: Missing descriptions for fields in price_fetcher: symbol, currency. 
-All fields must have descriptions when using Zod object schemas. 
+  ❌ PriceFetcher.js: Missing descriptions for fields in price_fetcher: symbol, currency.
+All fields must have descriptions when using Zod object schemas.
 Use .describe() on each field, e.g., z.string().describe("Field description")
 ```
 
 **Integrating validation into CI/CD:**
+
 ```json
 {
   "scripts": {
@@ -134,19 +169,21 @@ mcp add prompt price-analysis
 ### Adding a Resource
 
 ```bash
-# Add a new prompt
+# Add a new resource
 mcp add resource market-data
 ```
 
 ## Development Workflow
 
 1. **Create your project:**
+
    ```bash
    mcp create my-mcp-server
    cd my-mcp-server
    ```
 
 2. **Add tools:**
+
    ```bash
    mcp add tool data-fetcher
    mcp add tool data-processor
@@ -154,22 +191,28 @@ mcp add resource market-data
    ```
 
 3. **Define your tool schemas with automatic validation:**
+
    ```typescript
    // tools/DataFetcher.ts
-   import { MCPTool, McpInput } from "mcp-framework";
-   import { z } from "zod";
-   
+   import { MCPTool, McpInput } from 'mcp-framework';
+   import { z } from 'zod';
+
    const DataFetcherSchema = z.object({
      // all fields should have .describe()
-     url: z.string().url().describe("URL to fetch data from"),
-     timeout: z.number().positive().default(5000).describe("Request timeout in milliseconds").optional()
+     url: z.string().url().describe('URL to fetch data from'),
+     timeout: z
+       .number()
+       .positive()
+       .default(5000)
+       .describe('Request timeout in milliseconds')
+       .optional(),
    });
-   
+
    class DataFetcher extends MCPTool {
-     name = "data_fetcher";
-     description = "Fetch data from external APIs";
+     name = 'data_fetcher';
+     description = 'Fetch data from external APIs';
      schema = DataFetcherSchema;
-     
+
      async execute(input: McpInput<this>) {
        // Fully typed input with autocomplete support
        const { url, timeout = 5000 } = input;
@@ -179,16 +222,19 @@ mcp add resource market-data
    ```
 
 4. **Build with automatic validation:**
+
    ```bash
    npm run build  # Automatically validates schemas and compiles
    ```
 
 5. **Optional: Run standalone validation:**
+
    ```bash
    mcp validate  # Check all tools independently
    ```
 
 6. **Test your server:**
+
    ```bash
    node dist/index.js  # Server validates tools on startup
    ```
@@ -196,6 +242,7 @@ mcp add resource market-data
 7. **Add to MCP Client** (see Claude Desktop example below)
 
 **Pro Tips:**
+
 - Use `defineSchema()` during development for immediate feedback
 - Build process automatically catches missing descriptions
 - Server startup validates all tools before accepting connections
@@ -212,12 +259,12 @@ Add this configuration to your Claude Desktop config file:
 
 ```json
 {
-"mcpServers": {
-"${projectName}": {
+  "mcpServers": {
+    "${projectName}": {
       "command": "node",
-      "args":["/absolute/path/to/${projectName}/dist/index.js"]
-}
-}
+      "args": ["/absolute/path/to/${projectName}/dist/index.js"]
+    }
+  }
 }
 ```
 
@@ -230,12 +277,12 @@ Add this configuration to your Claude Desktop config file:
 
 ```json
 {
-"mcpServers": {
-"${projectName}": {
+  "mcpServers": {
+    "${projectName}": {
       "command": "npx",
       "args": ["${projectName}"]
-}
-}
+    }
+  }
 }
 ```
 
@@ -249,11 +296,11 @@ Add this configuration to your Claude Desktop config file:
 
 The framework supports the following environment variables for configuration:
 
-| Variable              | Description                                           | Default     |
-|-----------------------|-------------------------------------------------------|-------------|
-| MCP_ENABLE_FILE_LOGGING | Enable logging to files (true/false)                 | false       |
-| MCP_LOG_DIRECTORY     | Directory where log files will be stored             | logs        |
-| MCP_DEBUG_CONSOLE     | Display debug level messages in console (true/false) | false       |
+| Variable                | Description                                          | Default |
+| ----------------------- | ---------------------------------------------------- | ------- |
+| MCP_ENABLE_FILE_LOGGING | Enable logging to files (true/false)                 | false   |
+| MCP_LOG_DIRECTORY       | Directory where log files will be stored             | logs    |
+| MCP_DEBUG_CONSOLE       | Display debug level messages in console (true/false) | false   |
 
 Example usage:
 
@@ -275,17 +322,17 @@ MCP_DEBUG_CONSOLE=true node dist/index.js
 MCP Framework uses Zod schemas for defining tool inputs, providing type safety, validation, and automatic documentation:
 
 ```typescript
-import { MCPTool, McpInput } from "mcp-framework";
-import { z } from "zod";
+import { MCPTool, McpInput } from 'mcp-framework';
+import { z } from 'zod';
 
 const AddToolSchema = z.object({
-  a: z.number().describe("First number to add"),
-  b: z.number().describe("Second number to add"),
+  a: z.number().describe('First number to add'),
+  b: z.number().describe('Second number to add'),
 });
 
 class AddTool extends MCPTool {
-  name = "add";
-  description = "Add tool description";
+  name = 'add';
+  description = 'Add tool description';
   schema = AddToolSchema;
 
   async execute(input: McpInput<this>) {
@@ -298,6 +345,7 @@ export default AddTool;
 ```
 
 **Key Benefits:**
+
 - ✅ **Single source of truth** - Define types and validation in one place
 - ✅ **Automatic type inference** - TypeScript types are inferred from your schema
 - ✅ **Rich validation** - Leverage Zod's powerful validation features
@@ -310,51 +358,51 @@ export default AddTool;
 The framework supports all Zod features:
 
 ```typescript
-import { MCPTool, McpInput } from "mcp-framework";
-import { z } from "zod";
+import { MCPTool, McpInput } from 'mcp-framework';
+import { z } from 'zod';
 
 const AdvancedSchema = z.object({
   // String constraints and formats
-  email: z.string().email().describe("User email address"),
-  name: z.string().min(2).max(50).describe("User name"),
-  website: z.string().url().optional().describe("Optional website URL"),
-  
+  email: z.string().email().describe('User email address'),
+  name: z.string().min(2).max(50).describe('User name'),
+  website: z.string().url().optional().describe('Optional website URL'),
+
   // Number constraints
-  age: z.number().int().positive().max(120).describe("User age"),
-  rating: z.number().min(1).max(5).describe("Rating from 1 to 5"),
-  
+  age: z.number().int().positive().max(120).describe('User age'),
+  rating: z.number().min(1).max(5).describe('Rating from 1 to 5'),
+
   // Arrays and objects
-  tags: z.array(z.string()).describe("List of tags"),
-  metadata: z.object({
-    priority: z.enum(['low', 'medium', 'high']).describe("Task priority"),
-    dueDate: z.string().optional().describe("Due date in ISO format")
-  }).describe("Additional metadata"),
-  
+  tags: z.array(z.string()).describe('List of tags'),
+  metadata: z
+    .object({
+      priority: z.enum(['low', 'medium', 'high']).describe('Task priority'),
+      dueDate: z.string().optional().describe('Due date in ISO format'),
+    })
+    .describe('Additional metadata'),
+
   // Default values
-  status: z.string().default('pending').describe("Current status"),
-  
+  status: z.string().default('pending').describe('Current status'),
+
   // Unions and enums
-  category: z.union([
-    z.literal('personal'),
-    z.literal('work'),
-    z.literal('other')
-  ]).describe("Category type")
+  category: z
+    .union([z.literal('personal'), z.literal('work'), z.literal('other')])
+    .describe('Category type'),
 });
 
 class AdvancedTool extends MCPTool {
-  name = "advanced_tool";
-  description = "Tool demonstrating advanced Zod features";
+  name = 'advanced_tool';
+  description = 'Tool demonstrating advanced Zod features';
   schema = AdvancedSchema;
 
   async execute(input: McpInput<this>) {
     // TypeScript automatically knows all the types!
     const { email, name, website, age, rating, tags, metadata, status, category } = input;
-    
+
     console.log(input.name.toUpperCase()); // ✅ TypeScript knows this is valid
-    console.log(input.age.toFixed(2));     // ✅ Number methods available
-    console.log(input.tags.length);       // ✅ Array methods available
-    console.log(input.website?.includes("https")); // ✅ Optional handling
-    
+    console.log(input.age.toFixed(2)); // ✅ Number methods available
+    console.log(input.tags.length); // ✅ Array methods available
+    console.log(input.website?.includes('https')); // ✅ Optional handling
+
     return `Processed user: ${name}`;
   }
 }
@@ -367,20 +415,20 @@ The `McpInput<this>` type automatically infers the correct input type from your 
 ```typescript
 class MyTool extends MCPTool {
   schema = z.object({
-    name: z.string().describe("User name"),
-    age: z.number().optional().describe("User age"),
-    tags: z.array(z.string()).describe("User tags")
+    name: z.string().describe('User name'),
+    age: z.number().optional().describe('User age'),
+    tags: z.array(z.string()).describe('User tags'),
   });
 
   async execute(input: McpInput<this>) {
     // TypeScript automatically knows:
     // input.name is string
-    // input.age is number | undefined  
+    // input.age is number | undefined
     // input.tags is string[]
-    
+
     console.log(input.name.toUpperCase()); // ✅ TypeScript knows this is valid
-    console.log(input.age?.toFixed(2));    // ✅ Handles optional correctly
-    console.log(input.tags.length);       // ✅ Array methods available
+    console.log(input.age?.toFixed(2)); // ✅ Handles optional correctly
+    console.log(input.tags.length); // ✅ Array methods available
   }
 }
 ```
@@ -389,37 +437,42 @@ No more duplicate interfaces or generic type parameters needed!
 
 ### Schema Validation & Descriptions
 
-**All schema fields must have descriptions**. This ensures your tools are well-documented and provides better user experience in MCP clients.
+**All schema fields must have descriptions.** This ensures your tools are well-documented and provides better user experience in MCP clients.
 
 The framework validates descriptions at multiple levels:
 
 #### 1. Build-time Validation (Recommended)
+
 ```bash
 npm run build  # Automatically validates during compilation
 ```
 
 #### 2. Development-time Validation
+
 Use the `defineSchema` helper for immediate feedback:
 
 ```typescript
-import { defineSchema } from "mcp-framework";
+import { defineSchema } from 'mcp-framework';
 
 // This will throw an error immediately if descriptions are missing
 const MySchema = defineSchema({
-  name: z.string(),  // ❌ Error: Missing description
-  age: z.number().describe("User age")  // ✅ Good
+  name: z.string(), // ❌ Error: Missing description
+  age: z.number().describe('User age'), // ✅ Good
 });
 ```
 
 #### 3. Standalone Validation
+
 ```bash
 mcp validate  # Check all tools for proper descriptions
 ```
 
 #### 4. Runtime Validation
+
 The server automatically validates tools on startup.
 
 **To skip validation** (not recommended):
+
 ```bash
 # Skip during build
 MCP_SKIP_TOOL_VALIDATION=true npm run build
@@ -431,18 +484,18 @@ NODE_ENV=production npm run dev
 ### Setting up the Server
 
 ```typescript
-import { MCPServer } from "mcp-framework";
+import { MCPServer } from 'mcp-framework';
 
 const server = new MCPServer();
 
 // OR (mutually exclusive!) with SSE transport
 const server = new MCPServer({
   transport: {
-    type: "sse",
+    type: 'sse',
     options: {
-      port: 8080            // Optional (default: 8080)
-    }
-  }
+      port: 8080, // Optional (default: 8080)
+    },
+  },
 });
 
 // Start the server
@@ -459,7 +512,7 @@ The stdio transport is used by default if no transport configuration is provided
 const server = new MCPServer();
 // or explicitly:
 const server = new MCPServer({
-  transport: { type: "stdio" }
+  transport: { type: 'stdio' },
 });
 ```
 
@@ -470,20 +523,20 @@ To use Server-Sent Events (SSE) transport:
 ```typescript
 const server = new MCPServer({
   transport: {
-    type: "sse",
+    type: 'sse',
     options: {
-      port: 8080,            // Optional (default: 8080)
-      endpoint: "/sse",      // Optional (default: "/sse")
-      messageEndpoint: "/messages", // Optional (default: "/messages")
+      port: 8080, // Optional (default: 8080)
+      endpoint: '/sse', // Optional (default: "/sse")
+      messageEndpoint: '/messages', // Optional (default: "/messages")
       cors: {
-        allowOrigin: "*",    // Optional (default: "*")
-        allowMethods: "GET, POST, OPTIONS", // Optional (default: "GET, POST, OPTIONS")
-        allowHeaders: "Content-Type, Authorization, x-api-key", // Optional (default: "Content-Type, Authorization, x-api-key")
-        exposeHeaders: "Content-Type, Authorization, x-api-key", // Optional (default: "Content-Type, Authorization, x-api-key")
-        maxAge: "86400"      // Optional (default: "86400")
-      }
-    }
-  }
+        allowOrigin: '*', // Optional (default: "*")
+        allowMethods: 'GET, POST, OPTIONS', // Optional (default: "GET, POST, OPTIONS")
+        allowHeaders: 'Content-Type, Authorization, x-api-key', // Optional (default: "Content-Type, Authorization, x-api-key")
+        exposeHeaders: 'Content-Type, Authorization, x-api-key', // Optional (default: "Content-Type, Authorization, x-api-key")
+        maxAge: '86400', // Optional (default: "86400")
+      },
+    },
+  },
 });
 ```
 
@@ -494,37 +547,37 @@ To use HTTP Stream transport:
 ```typescript
 const server = new MCPServer({
   transport: {
-    type: "http-stream",
+    type: 'http-stream',
     options: {
-      port: 8080,                // Optional (default: 8080)
-      endpoint: "/mcp",          // Optional (default: "/mcp") 
-      responseMode: "batch",     // Optional (default: "batch"), can be "batch" or "stream"
-      batchTimeout: 30000,       // Optional (default: 30000ms) - timeout for batch responses
-      maxMessageSize: "4mb",     // Optional (default: "4mb") - maximum message size
-      
+      port: 8080, // Optional (default: 8080)
+      endpoint: '/mcp', // Optional (default: "/mcp")
+      responseMode: 'batch', // Optional (default: "batch"), can be "batch" or "stream"
+      batchTimeout: 30000, // Optional (default: 30000ms) - timeout for batch responses
+      maxMessageSize: '4mb', // Optional (default: "4mb") - maximum message size
+
       // Session configuration
       session: {
-        enabled: true,           // Optional (default: true)
-        headerName: "Mcp-Session-Id", // Optional (default: "Mcp-Session-Id")
+        enabled: true, // Optional (default: true)
+        headerName: 'Mcp-Session-Id', // Optional (default: "Mcp-Session-Id")
         allowClientTermination: true, // Optional (default: true)
       },
-      
+
       // Stream resumability (for missed messages)
       resumability: {
-        enabled: false,          // Optional (default: false)
+        enabled: false, // Optional (default: false)
         historyDuration: 300000, // Optional (default: 300000ms = 5min) - how long to keep message history
       },
-      
+
       // CORS configuration
       cors: {
-        allowOrigin: "*"         // Other CORS options use defaults
-      }
-    }
-  }
+        allowOrigin: '*', // Other CORS options use defaults
+      },
+    },
+  },
 });
 ```
 
-#### Response Modes
+### Response Modes
 
 The HTTP Stream transport supports two response modes:
 
@@ -538,25 +591,25 @@ You can configure the response mode based on your specific needs:
 // For batch mode (default):
 const server = new MCPServer({
   transport: {
-    type: "http-stream",
+    type: 'http-stream',
     options: {
-      responseMode: "batch"
-    }
-  }
+      responseMode: 'batch',
+    },
+  },
 });
 
 // For stream mode:
 const server = new MCPServer({
   transport: {
-    type: "http-stream",
+    type: 'http-stream',
     options: {
-      responseMode: "stream"
-    }
-  }
+      responseMode: 'stream',
+    },
+  },
 });
 ```
 
-#### HTTP Stream Transport Features
+### HTTP Stream Transport Features
 
 - **Session Management**: Automatic session tracking and management
 - **Stream Resumability**: Optional support for resuming streams after connection loss
@@ -570,30 +623,31 @@ MCP Framework provides optional authentication for SSE endpoints. You can choose
 ### JWT Authentication
 
 ```typescript
-import { MCPServer, JWTAuthProvider } from "mcp-framework";
-import { Algorithm } from "jsonwebtoken";
+import { MCPServer, JWTAuthProvider } from 'mcp-framework';
+import { Algorithm } from 'jsonwebtoken';
 
 const server = new MCPServer({
   transport: {
-    type: "sse",
+    type: 'sse',
     options: {
       auth: {
         provider: new JWTAuthProvider({
           secret: process.env.JWT_SECRET,
-          algorithms: ["HS256" as Algorithm], // Optional (default: ["HS256"])
-          headerName: "Authorization"         // Optional (default: "Authorization")
+          algorithms: ['HS256' as Algorithm], // Optional (default: ["HS256"])
+          headerName: 'Authorization', // Optional (default: "Authorization")
         }),
         endpoints: {
-          sse: true,      // Protect SSE endpoint (default: false)
-          messages: true  // Protect message endpoint (default: true)
-        }
-      }
-    }
-  }
+          sse: true, // Protect SSE endpoint (default: false)
+          messages: true, // Protect message endpoint (default: true)
+        },
+      },
+    },
+  },
 });
 ```
 
 Clients must include a valid JWT token in the Authorization header:
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 ```
@@ -601,24 +655,25 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 ### API Key Authentication
 
 ```typescript
-import { MCPServer, APIKeyAuthProvider } from "mcp-framework";
+import { MCPServer, APIKeyAuthProvider } from 'mcp-framework';
 
 const server = new MCPServer({
   transport: {
-    type: "sse",
+    type: 'sse',
     options: {
       auth: {
         provider: new APIKeyAuthProvider({
           keys: [process.env.API_KEY],
-          headerName: "X-API-Key" // Optional (default: "X-API-Key")
-        })
-      }
-    }
-  }
+          headerName: 'X-API-Key', // Optional (default: "X-API-Key")
+        }),
+      },
+    },
+  },
 });
 ```
 
 Clients must include a valid API key in the X-API-Key header:
+
 ```
 X-API-Key: your-api-key
 ```
@@ -628,8 +683,8 @@ X-API-Key: your-api-key
 You can implement your own authentication provider by implementing the `AuthProvider` interface:
 
 ```typescript
-import { AuthProvider, AuthResult } from "mcp-framework";
-import { IncomingMessage } from "node:http";
+import { AuthProvider, AuthResult } from 'mcp-framework';
+import { IncomingMessage } from 'node:http';
 
 class CustomAuthProvider implements AuthProvider {
   async authenticate(req: IncomingMessage): Promise<boolean | AuthResult> {
@@ -640,12 +695,8 @@ class CustomAuthProvider implements AuthProvider {
   getAuthError() {
     return {
       status: 401,
-      message: "Authentication failed"
+      message: 'Authentication failed',
     };
   }
 }
 ```
-
-## License
-
-MIT
