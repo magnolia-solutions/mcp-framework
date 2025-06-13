@@ -145,6 +145,16 @@ class ExampleTool extends MCPTool<ExampleInput> {
     },
   };
 
+  examples = {
+    input: {
+      message: "Hello, world!",
+    },
+    output: {
+      type: "string",
+      result: "Processed: Hello, world!",
+    },
+  };
+
   async execute(input: ExampleInput) {
     return \`Processed: \${input.message}\`;
   }
@@ -182,12 +192,12 @@ export default ExampleTool;`;
 
     if (shouldInstall) {
       console.log(chalk.blue('📦 Installing dependencies...'));
-      const npmInstall = spawnSync('npm', ['install'], {
+      const pnpmInstall = spawnSync('pnpm', ['install'], {
         stdio: 'inherit',
         shell: true,
       });
 
-      if (npmInstall.status !== 0) {
+      if (pnpmInstall.status !== 0) {
         throw new Error(chalk.red('❌ Failed to install dependencies'));
       }
 
@@ -231,8 +241,8 @@ ${chalk.cyan('Next steps:')}
 
 ${chalk.cyan('Next steps:')}
 1. ${chalk.yellow(`cd ${projectName}`)}
-2. Run ${chalk.yellow("'npm install'")} to install dependencies
-3. Run ${chalk.yellow("'npm run build'")} to build the project
+2. Run ${chalk.yellow("'pnpm install'")} to install dependencies
+3. Run ${chalk.yellow("'pnpm run build'")} to build the project
 4. Add more tools using:
    ${chalk.yellow(`mcp add tool <n>`)}
     `)
