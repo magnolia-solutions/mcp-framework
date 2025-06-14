@@ -65,9 +65,12 @@ export async function createProject(
         build: 'tsc && mcp-build',
         watch: 'tsc --watch',
         start: 'node dist/index.js',
+        inspect: 'pnpm dlx @modelcontextprotocol/inspector',
       },
       dependencies: {
         '@magnolia-solutions/mcp-framework': '^0.2.19',
+        chalk: '^5.4.1',
+        dayjs: '^1.11.13',
       },
       devDependencies: {
         '@types/node': '^20.11.24',
@@ -89,6 +92,8 @@ export async function createProject(
         esModuleInterop: true,
         skipLibCheck: true,
         forceConsistentCasingInFileNames: true,
+        allowJs: true,
+        resolveJsonModule: true,
       },
       include: ['src/**/*'],
       exclude: ['node_modules'],
