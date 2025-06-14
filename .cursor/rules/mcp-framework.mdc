@@ -108,7 +108,7 @@ server.start();
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@magnolia-solutions/mcp-framework": "^0.2.14",
+    "@magnolia-solutions/mcp-framework": "^0.2.18",
     "zod": "^3.24.4"
   },
   "devDependencies": {

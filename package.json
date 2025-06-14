@@ -1,6 +1,6 @@
 {
   "name": "@magnolia-solutions/mcp-framework",
-  "version": "0.2.14",
+  "version": "0.2.19",
   "description": "Framework for building Model Context Protocol (MCP) servers in Typescript (Forked from mcp-framework)",
   "type": "module",
   "author": "Elías Heresi <elias@magnolia.solutions>",

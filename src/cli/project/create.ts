@@ -67,7 +67,7 @@ export async function createProject(
         start: 'node dist/index.js',
       },
       dependencies: {
-        '@magnolia-solutions/mcp-framework': '^0.2.14',
+        '@magnolia-solutions/mcp-framework': '^0.2.19',
       },
       devDependencies: {
         '@types/node': '^20.11.24',
