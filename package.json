@@ -1,6 +1,6 @@
 {
   "name": "@magnolia-solutions/mcp-framework",
-  "version": "0.2.14",
+  "version": "0.2.19",
   "description": "Framework for building Model Context Protocol (MCP) servers in Typescript (Forked from mcp-framework)",
   "type": "module",
   "author": "Elías Heresi <elias@magnolia.solutions>",
@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/magnolia-solutions/mcp-framework"
+    "url": "git+https://github.com/magnolia-solutions/mcp-framework.git"
   },
   "bugs": {
     "url": "https://github.com/magnolia-solutions/mcp-framework/issues"
@@ -37,8 +37,8 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format": "prettier --write \"src/**/*.ts\"",
-    "prepare": "pnpm run build",
-    "dev:pub": "rm -rf dist && pnpm run build && yalc publish --push",
+    "dev:pub": "rm -rf dist && tsc && npm publish --access public --ignore-scripts",
+    "prepublishOnly": "echo 'Preparing to publish...'",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
@@ -63,6 +63,7 @@
   },
   "dependencies": {
     "@types/prompts": "^2.4.9",
+    "chalk": "^5.4.1",
     "commander": "^12.1.0",
     "content-type": "^1.0.5",
     "execa": "^9.5.2",
@@ -78,7 +79,7 @@
     "@types/content-type": "^1.1.8",
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.8",
-    "@types/node": "^20.17.28",
+    "@types/node": "^20.19.0",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
     "eslint": "^9.23.0",

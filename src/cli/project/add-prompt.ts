@@ -1,8 +1,9 @@
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import prompts from "prompts";
-import { toPascalCase } from "../utils/string-utils.js";
-import { validateMCPProject } from "../utils/validate-project.js";
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+import prompts from 'prompts';
+import { toPascalCase } from '../utils/string-utils.js';
+import { validateMCPProject } from '../utils/validate-project.js';
+import chalk from 'chalk';
 
 export async function addPrompt(name?: string) {
   await validateMCPProject();
@@ -11,18 +12,18 @@ export async function addPrompt(name?: string) {
   if (!promptName) {
     const response = await prompts([
       {
-        type: "text",
-        name: "name",
-        message: "What is the name of your prompt?",
+        type: 'text',
+        name: 'name',
+        message: chalk.cyan('💭 What is the name of your prompt?'),
         validate: (value: string) =>
           /^[a-z0-9-]+$/.test(value)
             ? true
-            : "Prompt name can only contain lowercase letters, numbers, and hyphens",
+            : chalk.red('❌ Prompt name can only contain lowercase letters, numbers, and hyphens'),
       },
     ]);
 
     if (!response.name) {
-      console.log("Prompt creation cancelled");
+      console.log(chalk.yellow('⚠️  Prompt creation cancelled'));
       process.exit(1);
     }
 
@@ -30,17 +31,18 @@ export async function addPrompt(name?: string) {
   }
 
   if (!promptName) {
-    throw new Error("Prompt name is required");
+    throw new Error(chalk.red('❌ Prompt name is required'));
   }
 
   const className = toPascalCase(promptName);
   const fileName = `${className}Prompt.ts`;
-  const promptsDir = join(process.cwd(), "src/prompts");
+  const promptsDir = join(process.cwd(), 'src/prompts');
 
   try {
+    console.log(chalk.blue('📁 Creating prompts directory...'));
     await mkdir(promptsDir, { recursive: true });
 
-    const promptContent = `import { MCPPrompt } from "mcp-framework";
+    const promptContent = `import { MCPPrompt } from "@magnolia-solutions/mcp-framework";
 import { z } from "zod";
 
 interface ${className}Input {
@@ -74,13 +76,16 @@ class ${className}Prompt extends MCPPrompt<${className}Input> {
 
 export default ${className}Prompt;`;
 
+    console.log(chalk.blue('📝 Creating prompt file...'));
     await writeFile(join(promptsDir, fileName), promptContent);
 
     console.log(
-      `Prompt ${promptName} created successfully at src/prompts/${fileName}`
+      chalk.green(`
+✨ Prompt ${chalk.bold(promptName)} created successfully at ${chalk.yellow(`src/prompts/${fileName}`)}
+    `)
     );
   } catch (error) {
-    console.error("Error creating prompt:", error);
+    console.error(chalk.red('❌ Error creating prompt:'), error);
     process.exit(1);
   }
 }

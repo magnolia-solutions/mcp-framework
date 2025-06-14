@@ -1,6 +1,6 @@
 # MCP Framework (Fork)
 
-This is a fork of the [mcp-framework](https://github.com/original-repo/mcp-framework) project, created to add additional features and improvements.
+This is a fork of the [mcp-framework](https://github.com/QuantGeekDev/mcp-framework) project, created to add additional features and improvements.
 
 ## Changes from Original
 
@@ -683,7 +683,7 @@ X-API-Key: your-api-key
 You can implement your own authentication provider by implementing the `AuthProvider` interface:
 
 ```typescript
-import { AuthProvider, AuthResult } from 'mcp-framework';
+import { AuthProvider, AuthResult } from '@magnolia-solutions/mcp-framework';
 import { IncomingMessage } from 'node:http';
 
 class CustomAuthProvider implements AuthProvider {
