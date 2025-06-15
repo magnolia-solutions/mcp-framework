@@ -45,12 +45,14 @@ export async function createProject(
   const projectDir = join(process.cwd(), projectName);
   const srcDir = join(projectDir, 'src');
   const toolsDir = join(srcDir, 'tools');
+  const configDir = join(srcDir, 'config');
 
   try {
     console.log(chalk.blue('📁 Creating project structure...'));
     await mkdir(projectDir);
     await mkdir(srcDir);
     await mkdir(toolsDir);
+    await mkdir(configDir);
 
     const packageJson = {
       name: projectName,
@@ -99,41 +101,9 @@ export async function createProject(
       exclude: ['node_modules'],
     };
 
-    let indexTs = '';
-
-    if (options?.http) {
-      const port = options.port || 8080;
-      let transportConfig = `\n  transport: {
-    type: "http-stream",
-    options: {
-      port: ${port}`;
-
-      if (options.cors) {
-        transportConfig += `,
-      cors: {
-        allowOrigin: "*"
-      }`;
-      }
-
-      transportConfig += `
-    }
-  }`;
-
-      indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
-
-const server = new MCPServer({${transportConfig}});
-
-server.start();`;
-    } else {
-      indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
-
-const server = new MCPServer();
-
-server.start();`;
-    }
-
     const exampleToolTs = `import { MCPTool } from "@magnolia-solutions/mcp-framework";
 import { z } from "zod";
+import { getApiKey } from "./config/cli.js";
 
 interface ExampleInput {
   message: string;
@@ -161,11 +131,106 @@ class ExampleTool extends MCPTool<ExampleInput> {
   };
 
   async execute(input: ExampleInput) {
-    return \`Processed: \${input.message}\`;
+    const apiKey = getApiKey();
+    return \`Processed: \${input.message} with API Key: \${apiKey}\`;
   }
 }
 
 export default ExampleTool;`;
+
+    const cliConfigTs = `import chalk from "chalk";
+
+export const BASE_URL = process.env.API_BASE_URL ?? "https://api.example.com";
+
+export interface CliConfig {
+  apiKey: string;
+  baseUrl: string;
+}
+
+export function parseCliArgs(): CliConfig {
+  const args = process.argv.slice(2);
+
+  const areArgsValid = args.length >= 1;
+  if (!areArgsValid) {
+    console.error(chalk.red("Missing required arguments:"));
+    console.error(
+      chalk.red(
+        "Usage: node dist/index.js <apiKey> [baseUrl]"
+      )
+    );
+    process.exit(1);
+  }
+
+  const [apiKey, baseUrl] = args;
+
+  return {
+    apiKey,
+    baseUrl: baseUrl || BASE_URL,
+  };
+}
+
+export function getApiKey(): string {
+  return parseCliArgs().apiKey;
+}`;
+
+    let indexTs = '';
+
+    if (options?.http) {
+      const port = options.port || 8080;
+      let transportConfig = `\n  transport: {
+    type: "http-stream",
+    options: {
+      port: ${port}`;
+
+      if (options.cors) {
+        transportConfig += `,
+      cors: {
+        allowOrigin: "*"
+      }`;
+      }
+
+      transportConfig += `
+    }
+  }`;
+
+      indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
+import { parseCliArgs } from "./config/cli.js";
+import chalk from "chalk";
+
+const main = async () => {
+  try {
+    const config = parseCliArgs();
+    console.log(chalk.green("Configuration loaded successfully"));
+
+    const server = new MCPServer({${transportConfig}});
+    server.start();
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+main();`;
+    } else {
+      indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
+import { parseCliArgs } from "./config/cli.js";
+import chalk from "chalk";
+
+const main = async () => {
+  try {
+    const config = parseCliArgs();
+    console.log(chalk.green("Configuration loaded successfully"));
+
+    const server = new MCPServer();
+    server.start();
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+main();`;
+    }
 
     // Prepare the files to write
     const filesToWrite = [
@@ -173,6 +238,7 @@ export default ExampleTool;`;
       writeFile(join(projectDir, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2)),
       writeFile(join(projectDir, 'README.md'), generateReadme(projectName)),
       writeFile(join(srcDir, 'index.ts'), indexTs),
+      writeFile(join(srcDir, 'config', 'cli.ts'), cliConfigTs),
     ];
 
     // Conditionally add the example tool
