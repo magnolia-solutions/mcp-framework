@@ -45,12 +45,14 @@ export async function createProject(
   const projectDir = join(process.cwd(), projectName);
   const srcDir = join(projectDir, 'src');
   const toolsDir = join(srcDir, 'tools');
+  const configDir = join(srcDir, 'config');
 
   try {
     console.log(chalk.blue('📁 Creating project structure...'));
     await mkdir(projectDir);
     await mkdir(srcDir);
     await mkdir(toolsDir);
+    await mkdir(configDir);
 
     const packageJson = {
       name: projectName,
@@ -65,9 +67,12 @@ export async function createProject(
         build: 'tsc && mcp-build',
         watch: 'tsc --watch',
         start: 'node dist/index.js',
+        inspect: 'pnpm dlx @modelcontextprotocol/inspector',
       },
       dependencies: {
-        '@magnolia-solutions/mcp-framework': '^0.2.19',
+        '@magnolia-solutions/mcp-framework': '^0.2.20',
+        chalk: '^5.4.1',
+        dayjs: '^1.11.13',
       },
       devDependencies: {
         '@types/node': '^20.11.24',
@@ -89,10 +94,84 @@ export async function createProject(
         esModuleInterop: true,
         skipLibCheck: true,
         forceConsistentCasingInFileNames: true,
+        allowJs: true,
+        resolveJsonModule: true,
       },
       include: ['src/**/*'],
       exclude: ['node_modules'],
     };
+
+    const exampleToolTs = `import { MCPTool } from "@magnolia-solutions/mcp-framework";
+import { z } from "zod";
+import { getApiKey } from "../config/cli.js";
+
+interface ExampleInput {
+  message: string;
+}
+
+class ExampleTool extends MCPTool<ExampleInput> {
+  name = "example_tool";
+  description = "<use_case>\\n  Use this tool to get a list of packs with pagination and filtering capabilities.\\n</use_case>\\n\\n<important_notes>\\n  The tool supports filtering by: \\n  - Pack code\\n  Results are paginated for better performance.\\n</important_notes>\\n\\n<workflow>\\n  1. Validates input parameters\\n  2. Applies filters if provided\\n  3. Returns paginated results with total count\\n</workflow>";
+
+  schema = {
+    message: {
+      type: z.string(),
+      description: "Message to process",
+    },
+  };
+
+  examples = {
+    input: {
+      message: "Hello, world!",
+    },
+    output: {
+      type: "string",
+      result: "Processed: Hello, world!",
+    },
+  };
+
+  async execute(input: ExampleInput) {
+    const apiKey = getApiKey();
+    return \`Processed: \${input.message} with API Key: \${apiKey}\`;
+  }
+}
+
+export default ExampleTool;`;
+
+    const cliConfigTs = `import chalk from "chalk";
+
+export const BASE_URL = process.env.API_BASE_URL ?? "https://api.example.com";
+
+export interface CliConfig {
+  apiKey: string;
+  baseUrl: string;
+}
+
+export function parseCliArgs(): CliConfig {
+  const args = process.argv.slice(2);
+
+  const areArgsValid = args.length >= 1;
+  if (!areArgsValid) {
+    console.error(chalk.red("Missing required arguments:"));
+    console.error(
+      chalk.red(
+        "Usage: node dist/index.js <apiKey> [baseUrl]"
+      )
+    );
+    process.exit(1);
+  }
+
+  const [apiKey, baseUrl] = args;
+
+  return {
+    apiKey,
+    baseUrl: baseUrl || BASE_URL,
+  };
+}
+
+export function getApiKey(): string {
+  return parseCliArgs().apiKey;
+}`;
 
     let indexTs = '';
 
@@ -115,52 +194,43 @@ export async function createProject(
   }`;
 
       indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
+import { parseCliArgs } from "./config/cli.js";
+import chalk from "chalk";
 
-const server = new MCPServer({${transportConfig}});
+const main = async () => {
+  try {
+    const config = parseCliArgs();
+    console.log(chalk.green("Configuration loaded successfully"));
 
-server.start();`;
+    const server = new MCPServer({${transportConfig}});
+    server.start();
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+main();`;
     } else {
       indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
+import { parseCliArgs } from "./config/cli.js";
+import chalk from "chalk";
 
-const server = new MCPServer();
+const main = async () => {
+  try {
+    const config = parseCliArgs();
+    console.log(chalk.green("Configuration loaded successfully"));
 
-server.start();`;
-    }
-
-    const exampleToolTs = `import { MCPTool } from "@magnolia-solutions/mcp-framework";
-import { z } from "zod";
-
-interface ExampleInput {
-  message: string;
-}
-
-class ExampleTool extends MCPTool<ExampleInput> {
-  name = "example_tool";
-  description = "An example tool that processes messages";
-
-  schema = {
-    message: {
-      type: z.string(),
-      description: "Message to process",
-    },
-  };
-
-  examples = {
-    input: {
-      message: "Hello, world!",
-    },
-    output: {
-      type: "string",
-      result: "Processed: Hello, world!",
-    },
-  };
-
-  async execute(input: ExampleInput) {
-    return \`Processed: \${input.message}\`;
+    const server = new MCPServer();
+    server.start();
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
   }
-}
+};
 
-export default ExampleTool;`;
+main();`;
+    }
 
     // Prepare the files to write
     const filesToWrite = [
@@ -168,6 +238,7 @@ export default ExampleTool;`;
       writeFile(join(projectDir, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2)),
       writeFile(join(projectDir, 'README.md'), generateReadme(projectName)),
       writeFile(join(srcDir, 'index.ts'), indexTs),
+      writeFile(join(srcDir, 'config', 'cli.ts'), cliConfigTs),
     ];
 
     // Conditionally add the example tool
