@@ -70,7 +70,7 @@ export async function createProject(
         inspect: 'pnpm dlx @modelcontextprotocol/inspector',
       },
       dependencies: {
-        '@magnolia-solutions/mcp-framework': '^0.2.19',
+        '@magnolia-solutions/mcp-framework': '^0.2.20',
         chalk: '^5.4.1',
         dayjs: '^1.11.13',
       },
@@ -103,7 +103,7 @@ export async function createProject(
 
     const exampleToolTs = `import { MCPTool } from "@magnolia-solutions/mcp-framework";
 import { z } from "zod";
-import { getApiKey } from "./config/cli.js";
+import { getApiKey } from "../config/cli.js";
 
 interface ExampleInput {
   message: string;
@@ -111,7 +111,7 @@ interface ExampleInput {
 
 class ExampleTool extends MCPTool<ExampleInput> {
   name = "example_tool";
-  description = "<use_case>\n  Use this tool to get a list of packs with pagination and filtering capabilities.\n</use_case>\n\n<important_notes>\n  The tool supports filtering by:\n  - Pack code\n  Results are paginated for better performance.\n</important_notes>\n\n<workflow>\n  1. Validates input parameters\n  2. Applies filters if provided\n  3. Returns paginated results with total count\n</workflow>";
+  description = "<use_case>\\n  Use this tool to get a list of packs with pagination and filtering capabilities.\\n</use_case>\\n\\n<important_notes>\\n  The tool supports filtering by: \\n  - Pack code\\n  Results are paginated for better performance.\\n</important_notes>\\n\\n<workflow>\\n  1. Validates input parameters\\n  2. Applies filters if provided\\n  3. Returns paginated results with total count\\n</workflow>";
 
   schema = {
     message: {

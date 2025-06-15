@@ -9,7 +9,7 @@ import { validateCommand } from './commands/validate.js';
 
 const program = new Command();
 
-program.name('mcp').description('CLI for managing MCP server projects').version('0.2.19');
+program.name('mcp').description('CLI for managing MCP server projects').version('0.2.20');
 
 program.command('build').description('Build the MCP project').action(buildFramework);
 
