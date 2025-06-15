@@ -141,7 +141,7 @@ interface ExampleInput {
 
 class ExampleTool extends MCPTool<ExampleInput> {
   name = "example_tool";
-  description = "An example tool that processes messages";
+  description = "<use_case>\n  Use this tool to get a list of packs with pagination and filtering capabilities.\n</use_case>\n\n<important_notes>\n  The tool supports filtering by:\n  - Pack code\n  Results are paginated for better performance.\n</important_notes>\n\n<workflow>\n  1. Validates input parameters\n  2. Applies filters if provided\n  3. Returns paginated results with total count\n</workflow>";
 
   schema = {
     message: {
