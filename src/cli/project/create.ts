@@ -196,9 +196,15 @@ export function getApiKey(): string {
       indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
 import { parseCliArgs } from "./config/cli.js";
 import chalk from "chalk";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
 
 const main = async () => {
   try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    process.chdir(resolve(__dirname, ".."));
+
     const config = parseCliArgs();
     console.log(chalk.green("Configuration loaded successfully"));
 
@@ -215,9 +221,15 @@ main();`;
       indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
 import { parseCliArgs } from "./config/cli.js";
 import chalk from "chalk";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
 
 const main = async () => {
   try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    process.chdir(resolve(__dirname, ".."));
+
     const config = parseCliArgs();
     console.log(chalk.green("Configuration loaded successfully"));
 
