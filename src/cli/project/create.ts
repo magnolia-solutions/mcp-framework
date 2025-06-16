@@ -11,7 +11,7 @@ import {
   createIndexTs,
   createExampleTool,
   createCliConfig,
-} from '../templates/templates.js';
+} from '../templates/create.js';
 
 export async function createProject(
   name?: string,
