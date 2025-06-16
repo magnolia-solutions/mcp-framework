@@ -5,6 +5,13 @@ import prompts from 'prompts';
 import { generateReadme } from '../templates/readme.js';
 import { execa } from 'execa';
 import chalk from 'chalk';
+import {
+  createPackageJson,
+  createTsConfig,
+  createIndexTs,
+  createExampleTool,
+  createCliConfig,
+} from '../templates/templates.js';
 
 export async function createProject(
   name?: string,
@@ -54,197 +61,12 @@ export async function createProject(
     await mkdir(toolsDir);
     await mkdir(configDir);
 
-    const packageJson = {
-      name: projectName,
-      version: '0.0.1',
-      description: `${projectName} MCP server`,
-      type: 'module',
-      bin: {
-        [projectName]: './dist/index.js',
-      },
-      files: ['dist'],
-      scripts: {
-        build: 'tsc && mcp-build',
-        watch: 'tsc --watch',
-        start: 'node dist/index.js',
-        inspect: 'pnpm dlx @modelcontextprotocol/inspector',
-      },
-      dependencies: {
-        '@magnolia-solutions/mcp-framework': '^0.2.20',
-        chalk: '^5.4.1',
-        dayjs: '^1.11.13',
-      },
-      devDependencies: {
-        '@types/node': '^20.11.24',
-        typescript: '^5.3.3',
-      },
-      engines: {
-        node: '>=18.19.0',
-      },
-    };
+    // Use template functions
+    const packageJson = createPackageJson(projectName);
+    const tsconfig = createTsConfig();
+    const indexTs = createIndexTs(options || {});
+    const cliConfigTs = createCliConfig();
 
-    const tsconfig = {
-      compilerOptions: {
-        target: 'ESNext',
-        module: 'ESNext',
-        moduleResolution: 'node',
-        outDir: './dist',
-        rootDir: './src',
-        strict: true,
-        esModuleInterop: true,
-        skipLibCheck: true,
-        forceConsistentCasingInFileNames: true,
-        allowJs: true,
-        resolveJsonModule: true,
-      },
-      include: ['src/**/*'],
-      exclude: ['node_modules'],
-    };
-
-    const exampleToolTs = `import { MCPTool } from "@magnolia-solutions/mcp-framework";
-import { z } from "zod";
-import { getApiKey } from "../config/cli.js";
-
-interface ExampleInput {
-  message: string;
-}
-
-class ExampleTool extends MCPTool<ExampleInput> {
-  name = "example_tool";
-  description = "<use_case>\\n  Use this tool to get a list of packs with pagination and filtering capabilities.\\n</use_case>\\n\\n<important_notes>\\n  The tool supports filtering by: \\n  - Pack code\\n  Results are paginated for better performance.\\n</important_notes>\\n\\n<workflow>\\n  1. Validates input parameters\\n  2. Applies filters if provided\\n  3. Returns paginated results with total count\\n</workflow>";
-
-  schema = {
-    message: {
-      type: z.string(),
-      description: "Message to process",
-    },
-  };
-
-  examples = {
-    input: {
-      message: "Hello, world!",
-    },
-    output: {
-      type: "string",
-      result: "Processed: Hello, world!",
-    },
-  };
-
-  async execute(input: ExampleInput) {
-    const apiKey = getApiKey();
-    return \`Processed: \${input.message} with API Key: \${apiKey}\`;
-  }
-}
-
-export default ExampleTool;`;
-
-    const cliConfigTs = `import chalk from "chalk";
-
-export const BASE_URL = process.env.API_BASE_URL ?? "https://api.example.com";
-
-export interface CliConfig {
-  apiKey: string;
-  baseUrl: string;
-}
-
-export function parseCliArgs(): CliConfig {
-  const args = process.argv.slice(2);
-
-  const areArgsValid = args.length >= 1;
-  if (!areArgsValid) {
-    console.error(chalk.red("Missing required arguments:"));
-    console.error(
-      chalk.red(
-        "Usage: node dist/index.js <apiKey> [baseUrl]"
-      )
-    );
-    process.exit(1);
-  }
-
-  const [apiKey, baseUrl] = args;
-
-  return {
-    apiKey,
-    baseUrl: baseUrl || BASE_URL,
-  };
-}
-
-export function getApiKey(): string {
-  return parseCliArgs().apiKey;
-}`;
-
-    let indexTs = '';
-
-    if (options?.http) {
-      const port = options.port || 8080;
-      let transportConfig = `\n  transport: {
-    type: "http-stream",
-    options: {
-      port: ${port}`;
-
-      if (options.cors) {
-        transportConfig += `,
-      cors: {
-        allowOrigin: "*"
-      }`;
-      }
-
-      transportConfig += `
-    }
-  }`;
-
-      indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
-import { parseCliArgs } from "./config/cli.js";
-import chalk from "chalk";
-import { fileURLToPath } from "url";
-import { dirname, resolve } from "path";
-
-const main = async () => {
-  try {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    process.chdir(resolve(__dirname, ".."));
-
-    const config = parseCliArgs();
-    console.log(chalk.green("Configuration loaded successfully"));
-
-    const server = new MCPServer({${transportConfig}});
-    server.start();
-  } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
-  }
-};
-
-main();`;
-    } else {
-      indexTs = `import { MCPServer } from "@magnolia-solutions/mcp-framework";
-import { parseCliArgs } from "./config/cli.js";
-import chalk from "chalk";
-import { fileURLToPath } from "url";
-import { dirname, resolve } from "path";
-
-const main = async () => {
-  try {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    process.chdir(resolve(__dirname, ".."));
-
-    const config = parseCliArgs();
-    console.log(chalk.green("Configuration loaded successfully"));
-
-    const server = new MCPServer();
-    server.start();
-  } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
-  }
-};
-
-main();`;
-    }
-
-    // Prepare the files to write
     const filesToWrite = [
       writeFile(join(projectDir, 'package.json'), JSON.stringify(packageJson, null, 2)),
       writeFile(join(projectDir, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2)),
@@ -255,82 +77,28 @@ main();`;
 
     // Conditionally add the example tool
     if (shouldCreateExample) {
+      const exampleToolTs = createExampleTool();
       filesToWrite.push(writeFile(join(toolsDir, 'ExampleTool.ts'), exampleToolTs));
     }
 
     console.log(chalk.blue('📝 Creating project files...'));
     await Promise.all(filesToWrite);
 
-    process.chdir(projectDir);
-
-    console.log(chalk.blue('🔧 Initializing git repository...'));
-    const gitInit = spawnSync('git', ['init'], {
-      stdio: 'inherit',
-      shell: true,
-    });
-
-    if (gitInit.status !== 0) {
-      throw new Error(chalk.red('❌ Failed to initialize git repository'));
-    }
-
     if (shouldInstall) {
       console.log(chalk.blue('📦 Installing dependencies...'));
-      const pnpmInstall = spawnSync('pnpm', ['install'], {
-        stdio: 'inherit',
-        shell: true,
-      });
-
-      if (pnpmInstall.status !== 0) {
-        throw new Error(chalk.red('❌ Failed to install dependencies'));
-      }
-
-      console.log(chalk.blue('🔨 Building project...'));
-      const tscBuild = await execa('npx', ['tsc'], {
-        cwd: projectDir,
-        stdio: 'inherit',
-      });
-
-      if (tscBuild.exitCode !== 0) {
-        throw new Error(chalk.red('❌ Failed to build TypeScript'));
-      }
-
-      const mcpBuild = await execa('npx', ['mcp-build'], {
-        cwd: projectDir,
-        stdio: 'inherit',
-        env: {
-          ...process.env,
-          MCP_SKIP_VALIDATION: 'true',
-        },
-      });
-
-      if (mcpBuild.exitCode !== 0) {
-        throw new Error(chalk.red('❌ Failed to run mcp-build'));
-      }
-
-      console.log(
-        chalk.green(`
-✨ Project ${chalk.bold(projectName)} created and built successfully!
-
-${chalk.cyan('Next steps:')}
-1. ${chalk.yellow(`cd ${projectName}`)}
-2. Add more tools using:
-   ${chalk.yellow(`mcp add tool <n>`)}
-    `)
-      );
-    } else {
-      console.log(
-        chalk.green(`
-✨ Project ${chalk.bold(projectName)} created successfully (without dependencies)!
-
-${chalk.cyan('Next steps:')}
-1. ${chalk.yellow(`cd ${projectName}`)}
-2. Run ${chalk.yellow("'pnpm install'")} to install dependencies
-3. Run ${chalk.yellow("'pnpm run build'")} to build the project
-4. Add more tools using:
-   ${chalk.yellow(`mcp add tool <n>`)}
-    `)
-      );
+      const { stdout, stderr } = await execa('pnpm', ['install'], { cwd: projectDir });
+      if (stderr) console.error(stderr);
+      if (stdout) console.log(stdout);
     }
+
+    console.log(chalk.green('✅ Project created successfully!'));
+    console.log(chalk.cyan('\nNext steps:'));
+    console.log(chalk.cyan(`  cd ${projectName}`));
+    if (!shouldInstall) {
+      console.log(chalk.cyan('  pnpm install'));
+    }
+    console.log(chalk.cyan('  pnpm build'));
+    console.log(chalk.cyan('  pnpm start'));
   } catch (error) {
     console.error(chalk.red('❌ Error creating project:'), error);
     process.exit(1);
